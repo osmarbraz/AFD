@@ -1,6 +1,6 @@
 # Autômato Finito Determinístico(AFD)
 
-Implementação de um Autômato Finito Determinístico(AFD).
+Implementação em java de um Autômato Finito Determinístico(AFD).
 
 A linguagem é definida no arquivo "afd_X.json".
 

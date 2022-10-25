@@ -89,8 +89,8 @@ public class AFD {
      */
     private void setEstadoInicial() {
         System.out.println("Definindo estado inicial");
-        afdDados.get("estadoInicial").forEach(estadoInicial -> {
-            this.estadoInicial = matriz.get(estadoInicial.asText());
+        afdDados.get("estadoInicial").forEach(estado -> {
+            this.estadoInicial = matriz.get(estado.asText());
             this.estadoInicial.setInicial(true);
             this.estadoAtual = this.estadoInicial;
         });
