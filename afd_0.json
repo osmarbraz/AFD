@@ -1,0 +1,11 @@
+{
+  "alfabeto": ["0","1" ],
+  "estados": ["q0","q1"],
+  "estadoInicial": ["q0"],
+  "estadoFinal": ["q1"],
+  "matriz": { "q0": 
+                {"0": "q0", "1": "q1"},
+              "q1": 
+                {"0": "q0", "1": "q1" }
+   }
+}
