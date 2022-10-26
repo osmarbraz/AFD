@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public class Estado {
 
-    private Map<String, Estado> situacaoConectado = new HashMap<>();
+    private Map<String, Estado> estadoConectado = new HashMap<>();
     private String nomeEstado;
     private boolean inicial;
     private boolean aceito;
@@ -19,12 +19,12 @@ public class Estado {
     public Estado() {
     }
 
-    public Map<String, Estado> getStatusConnected() {
-        return situacaoConectado;
+    public Map<String, Estado> getEstadoConectado() {
+        return estadoConectado;
     }
 
-    public void setStatusConnected(Map<String, Estado> statusConnected) {
-        this.situacaoConectado = statusConnected;
+    public void setEstadoConectado(Map<String, Estado> estadoConectado) {
+        this.estadoConectado = estadoConectado;
     }
 
     public String getNomeEstado() {
@@ -35,7 +35,7 @@ public class Estado {
         this.nomeEstado = nomeEstado;
     }
 
-    public boolean isInicial() {
+    public boolean eInicial() {
         return inicial;
     }
 

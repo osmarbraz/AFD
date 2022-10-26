@@ -47,15 +47,15 @@ public class AFD {
     }
 
     /**
-     * Recupera o próximo estado.
+     * Recupera o próximo estado para uma entrada.
      *
-     * @param proximoEstado
+     * @param proximoEntrada
      */
-    private void getProximoEstado(String proximoEstado) {
-        //System.out.println("Recuperando próxima transição -> " + proximoEstado);
-        //Avança somente para estados diferentes de nulo
+    private void getProximoEstado(String proximoEntrada) {
+        //System.out.println("Recuperando próximo estado para -> " + proximoEntrada);
+        //Avança somente para estados atuais diferentes de nulo
         if (this.estadoAtual != null) {
-            this.estadoAtual = this.estadoAtual.getStatusConnected().get(proximoEstado);
+            this.estadoAtual = this.estadoAtual.getEstadoConectado().get(proximoEntrada);
         }
     }
 
@@ -77,8 +77,8 @@ public class AFD {
      * Carrega os transiçõe de estado.
      */
     private void carregarEstados() {
-        System.out.println("Carregando estados");
-        afdDados.get("estados").forEach(nome -> matriz.put(nome.asText(),
+        System.out.println("Carregando transições de estados");
+        afdDados.get("estados").forEach(nome -> getEstados().put(nome.asText(),
                 new Estado(nome.asText())
         )
         );
@@ -102,7 +102,7 @@ public class AFD {
     private void setEstadoFinal() {
         System.out.println("Definindo o estado final");
         afdDados.get("estadoFinal").forEach(estadoFinal -> {
-            matriz.get(estadoFinal.asText()).setAceito(true);
+            getEstados().get(estadoFinal.asText()).setAceito(true);
         });
     }
 
@@ -137,13 +137,17 @@ public class AFD {
     }
 
     /**
-     * Carrega a tabela de transição para os transicoesEstado.
+     * Carrega a tabela de transição de estado.
      */
     private void setTabelaTransicaoEstados() {
-        getEstados().values().forEach(valor -> {
-            JsonNode tabelaTransicao = getTabelaTransicao(valor.getNomeEstado());
+        //Percorre os estados
+        getEstados().values().forEach(estado -> {
+            //Recupera a tabela para o estado
+            JsonNode tabelaTransicao = getTabelaTransicao(estado.getNomeEstado());
+            //Percorre os tokens do alfabeto
             getAlfabeto().forEach(alfabeto -> {
-                valor.getStatusConnected().put(
+                //Especifica a transição(conexão) do estado
+                estado.getEstadoConectado().put(
                         alfabeto.asText(),
                         getEstados().get(tabelaTransicao.get(alfabeto.asText()).asText())
                 );
