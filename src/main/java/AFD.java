@@ -26,9 +26,7 @@ public class AFD {
     private List<JsonNode> aprovado = new ArrayList<>();
 
     private List<JsonNode> rejeitado = new ArrayList<>();
-
-    private Map<String, List<JsonNode>> resultados = new HashMap<>();
-
+    
     private String nome_afd;
 
     /**
@@ -43,19 +41,20 @@ public class AFD {
         carregarEstados();
         setEstadoInicial();
         setEstadoFinal();
-        setTabelaTransicaoEstados();
+        carregaMatriz();
     }
 
     /**
-     * Recupera o próximo estado para uma entrada.
+     * Recupera o próximo estado para um token de entrada.
      *
-     * @param proximoEntrada
+     * @param proximoToken
      */
-    private void getProximoEstado(String proximoEntrada) {
-        //System.out.println("Recuperando próximo estado para -> " + proximoEntrada);
+    private void getProximoEstado(String proximoToken) {
+        //System.out.println("Recuperando próximo estado para -> " + proximoToken);
         //Avança somente para estados atuais diferentes de nulo
         if (this.estadoAtual != null) {
-            this.estadoAtual = this.estadoAtual.getEstadoConectado().get(proximoEntrada);
+            //Atualiza o estado atual com o próximo estado conectado do token
+            this.estadoAtual = this.estadoAtual.getEstadoConectado().get(proximoToken);
         }
     }
 
@@ -74,11 +73,11 @@ public class AFD {
     }
 
     /**
-     * Carrega os transiçõe de estado.
+     * Carrega os estado dos dados para a matriz.
      */
     private void carregarEstados() {
         System.out.println("Carregando transições de estados");
-        afdDados.get("estados").forEach(nome -> getEstados().put(nome.asText(),
+        afdDados.get("estados").forEach(nome -> getMatriz().put(nome.asText(),
                 new Estado(nome.asText())
         )
         );
@@ -89,9 +88,13 @@ public class AFD {
      */
     private void setEstadoInicial() {
         System.out.println("Definindo estado inicial");
+        //Carrega o estado inicial dos dados
         afdDados.get("estadoInicial").forEach(estado -> {
-            this.estadoInicial = matriz.get(estado.asText());
-            this.estadoInicial.setInicial(true);
+            //Carrega da matriz o estado inicial
+            this.estadoInicial = getMatriz().get(estado.asText());
+            //Marca o estado como inicial
+            this.estadoInicial.setEstadoInicial(true);
+            //Define o estado atual com o inicial
             this.estadoAtual = this.estadoInicial;
         });
     }
@@ -101,8 +104,9 @@ public class AFD {
      */
     private void setEstadoFinal() {
         System.out.println("Definindo o estado final");
-        afdDados.get("estadoFinal").forEach(estadoFinal -> {
-            getEstados().get(estadoFinal.asText()).setAceito(true);
+        //Carrega o estado finaldos dados
+        afdDados.get("estadoFinal").forEach(estado -> {
+            getMatriz().get(estado.asText()).setEstadoFinal(true);
         });
     }
 
@@ -117,39 +121,39 @@ public class AFD {
     }
 
     /**
-     * Recupera a tabela de transição.
+     * Recupera as transições para um estado.
      *
      * @param nome
      * @return
      */
-    private JsonNode getTabelaTransicao(String nome) {
-        System.out.println("Recuperando matriz transicao");
+    private JsonNode getTransicoesEstado(String nome) {
+        System.out.println("Recuperando as transições para o estado:" + nome);
         return afdDados.get("matriz").get(nome);
     }
 
     /**
-     * Recupera as transições de estado.
+     * Recupera a matriz de transições de estado.
      *
      * @return
      */
-    private Map<String, Estado> getEstados() {
+    private Map<String, Estado> getMatriz() {
         return matriz;
     }
 
     /**
-     * Carrega a tabela de transição de estado.
+     * Carrega a matriz de transições de estado.
      */
-    private void setTabelaTransicaoEstados() {
-        //Percorre os estados
-        getEstados().values().forEach(estado -> {
-            //Recupera a tabela para o estado
-            JsonNode tabelaTransicao = getTabelaTransicao(estado.getNomeEstado());
+    private void carregaMatriz() {
+        //Percorre os estados do automâto
+        getMatriz().values().forEach(estado -> {
+            //Recupera a tabela de transição para o estado do arquivo JSON
+            JsonNode tabelaTransicao = getTransicoesEstado(estado.getNomeEstado());
             //Percorre os tokens do alfabeto
-            getAlfabeto().forEach(alfabeto -> {
-                //Especifica a transição(conexão) do estado
+            getAlfabeto().forEach(token -> {
+                //Especifica a transição(conexão) do estado para o token do alfabeto
                 estado.getEstadoConectado().put(
-                        alfabeto.asText(),
-                        getEstados().get(tabelaTransicao.get(alfabeto.asText()).asText())
+                        token.asText(),
+                        getMatriz().get(tabelaTransicao.get(token.asText()).asText())
                 );
             });
         });
@@ -159,24 +163,30 @@ public class AFD {
      * Avalia as entradas.
      */
     public void avaliar() {
-        System.out.println("Avaliando entradas");
-        //Percorre as entradas do arquivo entradas.json
+        System.out.println("\nAvaliando entradas");
+        //Percorre as entradas do arquivo entradas_X.json
         for (JsonNode entrada : entradas.get("entradas")) {
 
             System.out.println("Entrada:" + entrada);
-            entrada.forEach(transicao -> this.getProximoEstado(transicao.asText()));
+            //Recupera o próximo estado para cada token da entrada
+            entrada.forEach(token -> {
+                this.getProximoEstado(token.asText());
+            }
+            );
 
-            //Mostra se entrada foi aceita ou não
-            if (this.estadoAtual != null && this.estadoAtual.eAceito()) {
+            //Mostra se entrada foi aceita ou não, se o estado é diferente de nulo e o estado atual é estado final.
+            if (this.estadoAtual != null && this.estadoAtual.eEstadoFinal()) {
                 aprovado.add(entrada);
                 System.out.println("Aprovada -> " + entrada);
             } else {
                 rejeitado.add(entrada);
                 System.out.println("Rejeitada -> " + entrada);
             }
+            //Atualiza o estado atual
             this.estadoAtual = this.estadoInicial;
             System.out.println("");
         }
+        //Salva os resultados
         salvaResultados();
     }
 
@@ -184,12 +194,14 @@ public class AFD {
      * Salva os resultados no arquivo 'resultados.json'.
      */
     private void salvaResultados() {
+        Map<String, List<JsonNode>> resultados = new HashMap<>();
+        
         resultados.put("Aprovado", aprovado);
         resultados.put("Rejeitado", rejeitado);
         System.out.println("Salvando o resultado em \"resultados_" + nome_afd + ".json\"");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            objectMapper.writeValue(new File("resultados_" + nome_afd + ".json"), this.resultados);
+            objectMapper.writeValue(new File("resultados_" + nome_afd + ".json"), resultados);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

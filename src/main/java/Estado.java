@@ -7,16 +7,16 @@ import java.util.Map;
  */
 public class Estado {
 
+    //Mapa com as conexões do estado
     private Map<String, Estado> estadoConectado = new HashMap<>();
     private String nomeEstado;
-    private boolean inicial;
-    private boolean aceito;
+    //Indica se o estado é o inicial
+    private boolean estadoInicial;
+    //Indica se o estado é o final
+    private boolean estadoFinal;
 
     public Estado(String nomeEstado) {
         this.nomeEstado = nomeEstado;
-    }
-
-    public Estado() {
     }
 
     public Map<String, Estado> getEstadoConectado() {
@@ -35,19 +35,19 @@ public class Estado {
         this.nomeEstado = nomeEstado;
     }
 
-    public boolean eInicial() {
-        return inicial;
+    public boolean eEstadoInicial() {
+        return estadoInicial;
     }
 
-    public void setInicial(boolean inicial) {
-        this.inicial = inicial;
+    public void setEstadoInicial(boolean estadoInicial) {
+        this.estadoInicial = estadoInicial;
     }
 
-    public boolean eAceito() {
-        return aceito;
+    public boolean eEstadoFinal() {
+        return estadoFinal;
     }
 
-    public void setAceito(boolean aceito) {
-        this.aceito = aceito;
+    public void setEstadoFinal(boolean estadoFinal) {
+        this.estadoFinal = estadoFinal;
     }    
 }
